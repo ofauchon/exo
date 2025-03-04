@@ -16,6 +16,7 @@ from exo.orchestration.node import Node
 from exo.networking.grpc.grpc_server import GRPCServer
 from exo.networking.udp.udp_discovery import UDPDiscovery
 from exo.networking.tailscale.tailscale_discovery import TailscaleDiscovery
+from exo.networking.consul.consul_discovery import ConsulDiscovery
 from exo.networking.grpc.grpc_peer_handle import GRPCPeerHandle
 from exo.topology.ring_memory_weighted_partitioning_strategy import RingMemoryWeightedPartitioningStrategy
 from exo.api import ChatGPTAPI
@@ -74,7 +75,7 @@ parser.add_argument("--listen-port", type=int, default=5678, help="Listening por
 parser.add_argument("--download-quick-check", action="store_true", help="Quick check local path for model shards download")
 parser.add_argument("--max-parallel-downloads", type=int, default=8, help="Max parallel downloads for model shards download")
 parser.add_argument("--broadcast-port", type=int, default=5678, help="Broadcast port for discovery")
-parser.add_argument("--discovery-module", type=str, choices=["udp", "tailscale", "manual"], default="udp", help="Discovery module to use")
+parser.add_argument("--discovery-module", type=str, choices=["udp", "tailscale", "manual", "consul"], default="udp", help="Discovery module to use")
 parser.add_argument("--discovery-timeout", type=int, default=30, help="Discovery timeout in seconds")
 parser.add_argument("--discovery-config-path", type=str, default=None, help="Path to discovery config json file")
 parser.add_argument("--wait-for-peers", type=int, default=0, help="Number of peers to wait to connect to before starting")
@@ -145,6 +146,16 @@ elif args.discovery_module == "tailscale":
     tailscale_api_key=args.tailscale_api_key,
     tailnet=args.tailnet_name,
     allowed_node_ids=allowed_node_ids
+  )
+elif args.discovery_module == "consul":
+  discovery = ConsulDiscovery(
+    "http://localhost:8500",
+    "exo-peers",
+    args.node_id,
+    args.node_port,
+    lambda peer_id, address, description, device_capabilities: GRPCPeerHandle(peer_id, address, description, device_capabilities),
+    #discovery_timeout=args.discovery_timeout,
+    #allowed_node_ids=allowed_node_ids
   )
 elif args.discovery_module == "manual":
   if not args.discovery_config_path:
