@@ -149,8 +149,6 @@ elif args.discovery_module == "tailscale":
   )
 elif args.discovery_module == "consul":
   discovery = ConsulDiscovery(
-    "http://localhost:8500",
-    "exo-peers",
     args.node_id,
     args.node_port,
     lambda peer_id, address, description, device_capabilities: GRPCPeerHandle(peer_id, address, description, device_capabilities),
