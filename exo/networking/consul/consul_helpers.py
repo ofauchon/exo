@@ -33,12 +33,12 @@ async def get_consul_devices(consul_url: str) -> Dict[str, Device] :
             for instance in data:
                 # create new device
                 device = Device()
-                #device.ID = instance.get("ID",""),
-                device.name = instance.get("ID",""),
+
                 device.addresses = [instance.get("Address","")]
                 device.lastseen = instance.get("CreateIndex","")
                 
                 meta = instance["ServiceMeta"]
+                device.name =  meta.get("node_id","")
                 device.nodeid =  meta.get("node_id","")
                 device.nodeport = meta.get("node_port","")
 
@@ -52,11 +52,9 @@ async def get_consul_devices(consul_url: str) -> Dict[str, Device] :
                         int8=float(meta.get("device_capability_flops_int8", 0))
                     )
                 )
-                print("rrrrr")
-                print(device)
+                print(f"*consul disco* New device: {device.name}")
 
                 devices[device.name] = device
-                #print(f"*consul update* New device:{device}")
             return devices
 
 

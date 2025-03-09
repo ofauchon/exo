@@ -89,6 +89,7 @@ parser.add_argument("--prompt", type=str, help="Prompt for the model when using 
 parser.add_argument("--default-temp", type=float, help="Default token sampling temperature", default=0.0)
 parser.add_argument("--tailscale-api-key", type=str, default=None, help="Tailscale API key")
 parser.add_argument("--tailnet-name", type=str, default=None, help="Tailnet name")
+parser.add_argument("--consul-server", type=str, default="127.0.0.1", help="Consul server ip")
 parser.add_argument("--node-id-filter", type=str, default=None, help="Comma separated list of allowed node IDs (only for UDP and Tailscale discovery)")
 parser.add_argument("--interface-type-filter", type=str, default=None, help="Comma separated list of allowed interface types (only for UDP discovery)")
 parser.add_argument("--system-prompt", type=str, default=None, help="System prompt for the ChatGPT API")
@@ -149,10 +150,11 @@ elif args.discovery_module == "tailscale":
   )
 elif args.discovery_module == "consul":
   discovery = ConsulDiscovery(
+    args.consul_server,
     args.node_id,
     args.node_port,
     lambda peer_id, address, description, device_capabilities: GRPCPeerHandle(peer_id, address, description, device_capabilities),
-    #discovery_timeout=args.discovery_timeout,
+    discovery_timeout=args.discovery_timeout,
     #allowed_node_ids=allowed_node_ids
   )
 elif args.discovery_module == "manual":

@@ -11,16 +11,17 @@ from .consul_helpers import get_consul_devices, update_consul_attributes, Device
 class ConsulDiscovery(Discovery):
     def __init__(
         self,
-        node_id: str,
+        consul_server: str ,
+        node_id: str ,
         node_port: int,
         create_peer_handle: Callable[[str, str, str, DeviceCapabilities], PeerHandle],
         discovery_interval: int = 5,
         discovery_timeout: int = 30,
         update_interval: int = 15,
         device_capabilities: DeviceCapabilities = UNKNOWN_DEVICE_CAPABILITIES,
-        consul_url: str = "http://localhost:8500",
         allowed_node_ids: List[str] = None,
     ):
+        self.consul_server = consul_server
         self.node_id = node_id
         self.node_port = node_port
         self.create_peer_handle = create_peer_handle
@@ -31,12 +32,12 @@ class ConsulDiscovery(Discovery):
         self.known_peers: Dict[str, Tuple[PeerHandle, float, float]] = {}
         self.discovery_task = None
         self.cleanup_task = None
-        self.consul_url = consul_url
         self.allowed_node_ids = allowed_node_ids
         self.update_task = None
+        self.consul_url = "http://" + consul_server+":8500/"
 
     async def start(self):
-        print(f"*consul start* Class info node_id: {self.node_id} node_port:{self.node_port}")
+        print(f"*consul start* Class info node_id: {self.node_id} node_port:{self.node_port} consul_url: {self.consul_url}")
         self.device_capabilities = await device_capabilities()
         self.discovery_task = asyncio.create_task(self.task_discover_peers())
         #self.cleanup_task = asyncio.create_task(self.task_cleanup_peers())
@@ -70,17 +71,14 @@ class ConsulDiscovery(Discovery):
         while True:
             try:
                 devices: dict[str, Device] = await get_consul_devices(self.consul_url)
-                print(f"*consul disco* Consul response device list: {devices}")
+                #print(f"*consul disco* Consul response device list: {devices}")
                 current_time = time.time()
 
                 if DEBUG_DISCOVERY >= 4:
                     print(f"Found consul devices: {devices}")
-                if DEBUG_DISCOVERY >= 2:
-                    print(f"Active consul devices: {len(active_devices)}/{len(devices)}")
 
                 for device in devices.values():
-                    print("##########")
-                    print(device)
+                    #print(f"*consul disco* {device}")
                     if device.name == self.node_id:
                         print(f"consul disco* Ignoring myself {self.node_id}")
                         continue
