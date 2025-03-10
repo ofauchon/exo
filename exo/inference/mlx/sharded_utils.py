@@ -214,6 +214,7 @@ async def get_image_from_str(_image_str: str):
   if image_str.startswith("http"):
     conn = aiohttp.TCPConnector(
         family=socket.AF_INET,
+        verify_ssl=False,
         limit_per_host=1
     )
     async with aiohttp.ClientSession(connector=conn) as session:

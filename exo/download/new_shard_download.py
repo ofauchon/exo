@@ -94,6 +94,7 @@ async def _fetch_file_list(repo_id: str, revision: str = "main", path: str = "")
   headers = await get_auth_headers()
   conn = aiohttp.TCPConnector(
         family=socket.AF_INET,
+        verify_ssl=False,
         limit_per_host=1
   )
   async with aiohttp.ClientSession(connector=conn, timeout=aiohttp.ClientTimeout(total=30, connect=10, sock_read=30, sock_connect=10)) as session:
@@ -126,6 +127,7 @@ async def file_meta(repo_id: str, revision: str, path: str) -> Tuple[int, str]:
   headers = await get_auth_headers()
   conn = aiohttp.TCPConnector(
         family=socket.AF_INET,
+        verify_ssl=False,
         limit_per_host=1
   )
   async with aiohttp.ClientSession(connector=conn, timeout=aiohttp.ClientTimeout(total=1800, connect=60, sock_read=1800, sock_connect=60)) as session:
@@ -162,6 +164,7 @@ async def _download_file(repo_id: str, revision: str, path: str, target_dir: Pat
     print(f"download_file: {url}")
     conn = aiohttp.TCPConnector(
         family=socket.AF_INET,
+        verify_ssl=False,
         limit_per_host=1
     )
     async with aiohttp.ClientSession(connector=conn, timeout=aiohttp.ClientTimeout(total=1800, connect=60, sock_read=1800, sock_connect=60)) as session:
