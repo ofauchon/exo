@@ -10,6 +10,7 @@ import os
 import aiofiles.os as aios
 import aiohttp
 import aiofiles
+import socket
 from urllib.parse import urljoin
 from typing import Callable, Union, Tuple, Dict, List, Optional, Literal, AsyncIterator
 import time

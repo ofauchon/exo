@@ -13,7 +13,7 @@ from PIL import Image
 from io import BytesIO
 import base64
 import traceback
-
+import socket
 import mlx.core as mx
 import mlx.nn as nn
 from transformers import AutoProcessor
