@@ -45,7 +45,7 @@ FROM debian:bookworm-20250224-slim AS target
 
 # Install minimal packages required for exo runtime
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python-is-python3 libgl1 libglib2.0-dev uuid-runtime wget curl
+    && apt-get install -y --no-install-recommends python-is-python3 libgl1 libglib2.0-dev uuid-runtime clang wget curl
 
 # Copy exo build to target image
 COPY --from=builder /opt/exo /opt/exo
