@@ -26,4 +26,4 @@ jobs:
        context:
        file: ./docker/debian/Dockerfile  # Updated Dockerfile location
        push: true
-       tags: exo/debian:latest
+       tags: ${{ secrets.DOCKERHUB_USERNAME }}/exo:debian-latest
