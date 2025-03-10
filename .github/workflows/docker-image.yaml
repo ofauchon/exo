@@ -24,5 +24,6 @@ jobs:
       uses: docker/build-push-action@v5
       with:
        context:
+       file: ./docker/debian/Dockerfile  # Updated Dockerfile location
        push: true
        tags: exo/debian:latest
