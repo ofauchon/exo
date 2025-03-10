@@ -91,7 +91,10 @@ async def _fetch_file_list(repo_id: str, revision: str = "main", path: str = "")
   url = f"{api_url}/{path}" if path else api_url
 
   headers = await get_auth_headers()
-  conn = aiohttp.TCPConnector(limit_per_host=1)
+  conn = aiohttp.TCPConnector(
+        family=socket.AF_INET,
+        limit_per_host=1
+  )
   async with aiohttp.ClientSession(connector=conn, timeout=aiohttp.ClientTimeout(total=30, connect=10, sock_read=30, sock_connect=10)) as session:
     async with session.get(url, headers=headers) as response:
       if response.status == 200:
@@ -120,7 +123,10 @@ async def calc_hash(path: Path, type: Literal["sha1", "sha256"] = "sha1") -> str
 async def file_meta(repo_id: str, revision: str, path: str) -> Tuple[int, str]:
   url = urljoin(f"{get_hf_endpoint()}/{repo_id}/resolve/{revision}/", path)
   headers = await get_auth_headers()
-  conn = aiohttp.TCPConnector(limit_per_host=1)
+  conn = aiohttp.TCPConnector(
+        family=socket.AF_INET,
+        limit_per_host=1
+  )
   async with aiohttp.ClientSession(connector=conn, timeout=aiohttp.ClientTimeout(total=1800, connect=60, sock_read=1800, sock_connect=60)) as session:
     async with session.head(url, headers=headers) as r:
       content_length = int(r.headers.get('x-linked-size') or r.headers.get('content-length') or 0)
@@ -153,7 +159,10 @@ async def _download_file(repo_id: str, revision: str, path: str, target_dir: Pat
     if resume_byte_pos: headers['Range'] = f'bytes={resume_byte_pos}-'
     n_read = resume_byte_pos or 0
     print(f"download_file: {url}")
-    conn = aiohttp.TCPConnector(limit_per_host=1)
+    conn = aiohttp.TCPConnector(
+        family=socket.AF_INET,
+        limit_per_host=1
+    )
     async with aiohttp.ClientSession(connector=conn, timeout=aiohttp.ClientTimeout(total=1800, connect=60, sock_read=1800, sock_connect=60)) as session:
       async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=1800, connect=60, sock_read=1800, sock_connect=60)) as r:
         if r.status == 404: raise FileNotFoundError(f"File not found: {url}")

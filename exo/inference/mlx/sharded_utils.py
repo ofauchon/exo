@@ -212,7 +212,10 @@ async def get_image_from_str(_image_str: str):
   image_str = _image_str.strip()
 
   if image_str.startswith("http"):
-    conn = aiohttp.TCPConnector(limit_per_host=1)
+    conn = aiohttp.TCPConnector(
+        family=socket.AF_INET,
+        limit_per_host=1
+    )
     async with aiohttp.ClientSession(connector=conn) as session:
       async with session.get(image_str, timeout=10) as response:
         content = await response.read()
