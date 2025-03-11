@@ -67,11 +67,6 @@ async def update_consul_attributes(node_id: str, node_port: int, device_capabili
     """
     print(f"*consul update* Capabilities: {node_id} {node_port} {device_capabilities}")
 
-    # Get the IP address dynamically
-    ip_addresses = get_all_ip_addresses_and_interfaces()
-    node_ip = ip_addresses[0][0]
-
-
     metadata = {
       "node_id": node_id,
       "node_port": str(node_port),
@@ -92,10 +87,9 @@ async def update_consul_attributes(node_id: str, node_port: int, device_capabili
             "ID": node_id,
             "Name": "exo",
             "Meta": metadata,
-            "Address": node_ip,
             "Port": node_port,
             "Check": {
-                "h2ping": f"{node_ip}:{node_port}",  # Replace with your actual health check endpoint
+                "h2ping": f":{node_port}",  # Replace with your actual health check endpoint
                 "h2ping_use_tls": False,
                 "Interval": "10s",  # Interval for the health check
                 "Timeout": "1s",    # Timeout for the health check
