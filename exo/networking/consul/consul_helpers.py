@@ -2,7 +2,7 @@ import json
 import asyncio
 import aiohttp
 from typing import Dict, Any, Tuple, List, Optional
-from exo.helpers import DEBUG_DISCOVERY
+from exo.helpers import DEBUG_DISCOVERY, get_all_ip_addresses_and_interfaces
 from exo.topology.device_capabilities import DeviceCapabilities, DeviceFlops
 from datetime import datetime, timezone
 
@@ -66,6 +66,12 @@ async def update_consul_attributes(node_id: str, node_port: int, device_capabili
 
     """
     print(f"*consul update* Capabilities: {node_id} {node_port} {device_capabilities}")
+
+    # Get the IP address dynamically
+    ip_addresses = get_all_ip_addresses_and_interfaces()
+    node_ip = ip_addresses[0][0]
+
+
     metadata = {
       "node_id": node_id,
       "node_port": str(node_port),
@@ -86,9 +92,18 @@ async def update_consul_attributes(node_id: str, node_port: int, device_capabili
             "ID": node_id,
             "Name": "exo",
             "Meta": metadata,
+            "Address": node_ip,
+            "Port": node_port,
+            "Check": {
+                "h2ping": f"{node_ip}:{node_port}",  # Replace with your actual health check endpoint
+                "h2ping_use_tls": False,
+                "Interval": "10s",  # Interval for the health check
+                "Timeout": "1s",    # Timeout for the health check
+                "DeregisterCriticalServiceAfter": "30s"  # Deregister the service after being critical for this duration
+            }
         }
         raw_json_request = json.dumps(service_definition, indent=2)
-        #print(f"*disco* Json to Consul {raw_json_request}")
+        print(f"*disco* Json to Consul {raw_json_request}")
 
         async with session.put(url, json=service_definition) as response:
             if response.status == 200:
@@ -99,28 +114,3 @@ async def update_consul_attributes(node_id: str, node_port: int, device_capabili
 
 
 
-
-
-#async def get_consul_attributes(device_id: str, consul_url: str) -> Tuple[str, int, DeviceCapabilities]:
-#    async with aiohttp.ClientSession() as session:
-#        url = f"{consul_url}/v1/kv/exo/node/{device_id}?raw"
-#        async with session.get(url) as response:
-#            if response.status == 200:
-#                data = await response.json()
-#                node_id = data.get("node_id", "")
-#                node_port = int(data.get("node_port", 0))
-#                device_capabilities = DeviceCapabilities(
-#                    model=data.get("device_capability_model", ""),
-#                    chip=data.get("device_capability_chip", ""),
-#                    memory=int(data.get("device_capability_memory", 0)),
-#                    flops=DeviceFlops(
-#                        fp16=float(data.get("device_capability_flops_fp16", 0)),
-#                        fp32=float(data.get("device_capability_flops_fp32", 0)),
-#                        int8=float(data.get("device_capability_flops_int8", 0))
-#                    )
-#                )
-#                return node_id, node_port, device_capabilities
-#            else:
-#                print(f"*consul disco* Failed to fetch attributes for device {device_id}: {response.status}")
-#                return "", 0, DeviceCapabilities(model="", chip="", memory=0, flops=DeviceFlops(fp16=0, fp32=0, int8=0))
-#
