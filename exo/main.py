@@ -15,6 +15,7 @@ from exo.networking.manual.manual_discovery import ManualDiscovery
 from exo.orchestration.node import Node
 from exo.networking.grpc.grpc_server import GRPCServer
 from exo.networking.udp.udp_discovery import UDPDiscovery
+from exo.networking.k8s.k8s_discovery import K8SDiscovery
 from exo.networking.tailscale.tailscale_discovery import TailscaleDiscovery
 from exo.networking.grpc.grpc_peer_handle import GRPCPeerHandle
 from exo.topology.ring_memory_weighted_partitioning_strategy import RingMemoryWeightedPartitioningStrategy
@@ -74,7 +75,7 @@ parser.add_argument("--listen-port", type=int, default=5678, help="Listening por
 parser.add_argument("--download-quick-check", action="store_true", help="Quick check local path for model shards download")
 parser.add_argument("--max-parallel-downloads", type=int, default=8, help="Max parallel downloads for model shards download")
 parser.add_argument("--broadcast-port", type=int, default=5678, help="Broadcast port for discovery")
-parser.add_argument("--discovery-module", type=str, choices=["udp", "tailscale", "manual"], default="udp", help="Discovery module to use")
+parser.add_argument("--discovery-module", type=str, choices=["udp", "tailscale", "manual", "k8s"], default="udp", help="Discovery module to use")
 parser.add_argument("--discovery-timeout", type=int, default=30, help="Discovery timeout in seconds")
 parser.add_argument("--discovery-config-path", type=str, default=None, help="Path to discovery config json file")
 parser.add_argument("--wait-for-peers", type=int, default=0, help="Number of peers to wait to connect to before starting")
@@ -127,6 +128,17 @@ allowed_interface_types = args.interface_type_filter.split(',') if args.interfac
 
 if args.discovery_module == "udp":
   discovery = UDPDiscovery(
+    args.node_id,
+    args.node_port,
+    args.listen_port,
+    args.broadcast_port,
+    lambda peer_id, address, description, device_capabilities: GRPCPeerHandle(peer_id, address, description, device_capabilities),
+    discovery_timeout=args.discovery_timeout,
+    allowed_node_ids=allowed_node_ids,
+    allowed_interface_types=allowed_interface_types
+  )
+elif args.discovery_module == "k8s":
+  discovery = K8SDiscovery(
     args.node_id,
     args.node_port,
     args.listen_port,
