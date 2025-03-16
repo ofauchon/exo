@@ -31,7 +31,7 @@ ENV PATH="/opt/exo/bin:$PATH"
 
 # Upgrade pip, setuptools, wheel
 # llvmlite -> Needed but not in setup.py ?
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel llvmlite kubernetes
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel llvmlite kubernetes flax
 
 # Install exo sources in venv
 RUN pip install --no-cache-dir .
