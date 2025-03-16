@@ -1,8 +1,8 @@
-name: Build and push Docker image to dockerhub
+name: Build_push disco-k8s exo image
 
 on:
   push:
-    branches: [ "consul" ]
+    branches: [ "disco-k8s" ]
     
 jobs:
 
