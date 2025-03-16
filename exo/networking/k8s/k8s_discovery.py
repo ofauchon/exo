@@ -69,9 +69,9 @@ class K8SDiscovery(Discovery):
             await asyncio.gather(self.broadcast_task, self.listen_task, self.cleanup_task, return_exceptions=True)
 
 
-    # ###########################
-    # Task for notify peers below
-    # ###########################
+    # 
+    # Task : Connects all k8s exo hosts and send them capabilities update
+    # 
 
     async def task_notify_peers_for_updates(self):
         """
@@ -103,7 +103,7 @@ class K8SDiscovery(Discovery):
         })
         log_d(f"Broadcast message {message}")
 
-        peers = self.get_peers_ips_from_k8s_api2("exo", "exo")
+        peers = self.get_peers_ips_from_k8s_api("exo", "exo")
         for peer in peers:
             log_d(f"Send message to {peer}")
             self.send_message_to_server(peer,self.listen_port, message)
